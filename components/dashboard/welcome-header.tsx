@@ -2,10 +2,10 @@
 
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar"
 import "react-circular-progressbar/dist/styles.css"
-import { useUser } from "@/lib/hooks/useUser"
+import { useUserProfile } from "@/lib/hooks/useUserProfile"
 
 export function WelcomeHeader() {
-  const { user, loading, getCurrentPregnancyWeek, getPregnancyProgress, getTrimester, getDaysUntilDue } = useUser()
+  const { profile, loading, getCurrentPregnancyWeek, getPregnancyProgress, getTrimester, getDaysUntilDue } = useUserProfile()
   
   const pregnancyWeek = getCurrentPregnancyWeek() || 0
   const totalWeeks = 40
@@ -20,7 +20,7 @@ export function WelcomeHeader() {
         {/* Greeting */}
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2 text-balance">
-            {loading ? 'Loading...' : `Good Morning, ${user?.name || 'User'}`}
+            {loading ? 'Loading...' : `Good Morning, ${profile?.firstName || 'User'}`}
           </h1>
           <p className="text-muted-foreground">Welcome back to your maternal health dashboard</p>
         </div>

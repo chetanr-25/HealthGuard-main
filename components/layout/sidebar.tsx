@@ -11,12 +11,12 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { icon: Home, label: "Dashboard", href: "/" },
-  { icon: Activity, label: "Health Monitor", href: "/health-monitoring" },
-  { icon: Zap, label: "AI Predictor", href: "/ai-risk-predictor" },
+  { icon: Home, label: "Dashboard", href: "/", tourId: "dashboard" },
+  { icon: Activity, label: "Health Monitor", href: "/health-monitoring", tourId: "vitals" },
+  { icon: Zap, label: "AI Predictor", href: "/ai-risk-predictor", tourId: "ai-insights" },
   { icon: Calendar, label: "Timeline", href: "/pregnancy-timeline" },
-  { icon: Clock, label: "Appointments", href: "/appointments" },
-  { icon: Pill, label: "Medications", href: "/medications" },
+  { icon: Clock, label: "Appointments", href: "/appointments", tourId: "appointments" },
+  { icon: Pill, label: "Medications", href: "/medications", tourId: "medications" },
   { icon: BookOpen, label: "Education", href: "/education" },
   { icon: AlertCircle, label: "Emergency", href: "/emergency" },
   { icon: Settings, label: "Settings", href: "/settings" },
@@ -65,10 +65,11 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
                   <Link
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
+                      "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors hover-lift",
                       isActive ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-muted",
                     )}
                     title={!open ? item.label : undefined}
+                    data-tour={item.tourId}
                   >
                     <item.icon className="h-5 w-5 flex-shrink-0" />
                     {open && <span className="text-sm font-medium">{item.label}</span>}
@@ -81,7 +82,7 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
       </aside>
 
       {/* Mobile Bottom Navigation */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border mobile-safe-area-bottom">
         <nav className="flex justify-around">
           {navItems.slice(0, 5).map((item) => {
             const isActive = pathname === item.href || (item.href === "/" && pathname === "/")
@@ -90,13 +91,14 @@ export function Sidebar({ open, onToggle }: SidebarProps) {
                 key={item.label}
                 href={item.href}
                 className={cn(
-                  "flex flex-col items-center justify-center w-full py-3 text-xs transition-colors",
+                  "mobile-nav-item touch-target flex flex-col items-center justify-center w-full py-2 text-xs transition-colors hover-lift",
                   isActive ? "text-primary" : "text-muted-foreground",
                 )}
                 title={item.label}
+                data-tour={item.tourId}
               >
                 <item.icon className="h-5 w-5 mb-1" />
-                <span>{item.label}</span>
+                <span className="text-xs">{item.label}</span>
               </Link>
             )
           })}

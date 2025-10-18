@@ -14,17 +14,36 @@ import { HistoryTab } from "@/components/medications/history-tab"
 import { RemindersSettingsTab } from "@/components/medications/reminders-settings-tab"
 import { AddMedicationModal } from "@/components/medications/add-medication-modal"
 import { MedicationFloatingMenu } from "@/components/medications/medication-floating-menu"
+import { AISuggestionCards } from "@/components/medications/ai-suggestion-cards"
+import { AdherenceInsights } from "@/components/medications/adherence-insights"
+import { useSmartReminders } from "@/lib/hooks/useSmartReminders"
 
 export default function MedicationsPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [addMedicationOpen, setAddMedicationOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("today")
+  
+  // Smart reminders hook
+  const {
+    suggestions,
+    patterns,
+    insights,
+    loading: smartRemindersLoading,
+    error: smartRemindersError,
+    generateSuggestions,
+    acceptSuggestion,
+    dismissSuggestion,
+    getAdherenceSummary
+  } = useSmartReminders()
 
-  // Dummy data
+  // Get adherence summary for real data
+  const adherenceSummary = getAdherenceSummary()
+  
+  // Dummy data (will be replaced with real data from smart reminders)
   const summaryStats = {
-    totalActive: 5,
-    takenToday: 3,
-    missedThisWeek: 1,
+    totalActive: adherenceSummary.totalMedications || 5,
+    takenToday: 3, // This would come from medication logs
+    missedThisWeek: adherenceSummary.needsAttention || 1,
     nextDue: { medication: "Iron Supplement", time: "9:00 PM", minutesUntil: 45 },
   }
 
@@ -114,12 +133,13 @@ export default function MedicationsPage() {
             {/* Tabs */}
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-5 mb-6">
+                <TabsList className="grid w-full grid-cols-6 mb-6">
                   <TabsTrigger value="today">Today</TabsTrigger>
                   <TabsTrigger value="all">All Medications</TabsTrigger>
                   <TabsTrigger value="schedule">Schedule</TabsTrigger>
                   <TabsTrigger value="history">History</TabsTrigger>
                   <TabsTrigger value="reminders">Reminders</TabsTrigger>
+                  <TabsTrigger value="ai-insights">AI Insights</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="today" className="space-y-4">
@@ -140,6 +160,40 @@ export default function MedicationsPage() {
 
                 <TabsContent value="reminders" className="space-y-4">
                   <RemindersSettingsTab />
+                </TabsContent>
+
+                <TabsContent value="ai-insights" className="space-y-6">
+                  <div className="space-y-6">
+                    {/* Adherence Insights */}
+                    <AdherenceInsights 
+                      patterns={patterns} 
+                      loading={smartRemindersLoading} 
+                    />
+                    
+                    {/* AI Suggestions */}
+                    <AISuggestionCards
+                      suggestions={suggestions}
+                      onAccept={acceptSuggestion}
+                      onDismiss={dismissSuggestion}
+                      loading={smartRemindersLoading}
+                    />
+                    
+                    {/* Generate New Suggestions Button */}
+                    <div className="flex justify-center">
+                      <Button 
+                        onClick={generateSuggestions}
+                        disabled={smartRemindersLoading}
+                        variant="outline"
+                        className="gap-2"
+                      >
+                        {smartRemindersLoading ? (
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                        ) : (
+                          <span>Generate New AI Suggestions</span>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
                 </TabsContent>
               </Tabs>
             </div>

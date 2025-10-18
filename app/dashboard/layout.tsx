@@ -3,6 +3,8 @@
 import { useAuth } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+import { PageErrorBoundary } from '@/components/ui/error-boundary'
+import { LoadingSpinner } from '@/components/ui/page-transition'
 
 export default function DashboardLayout({
   children,
@@ -20,8 +22,11 @@ export default function DashboardLayout({
 
   if (!isLoaded) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="text-center space-y-4">
+          <LoadingSpinner size="lg" />
+          <p className="text-muted-foreground">Loading your dashboard...</p>
+        </div>
       </div>
     )
   }
@@ -30,6 +35,10 @@ export default function DashboardLayout({
     return null
   }
 
-  return <>{children}</>
+  return (
+    <PageErrorBoundary>
+      {children}
+    </PageErrorBoundary>
+  )
 }
 

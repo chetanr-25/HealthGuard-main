@@ -4,44 +4,65 @@ import { useState, useEffect } from "react"
 import { RefreshCw, Download } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { RiskAssessment } from "@/lib/aiAgent"
 
-export function RiskHeroSection() {
-  const [isRunning, setIsRunning] = useState(false)
+interface RiskHeroSectionProps {
+  assessment?: RiskAssessment | null
+}
+
+export function RiskHeroSection({ assessment }: RiskHeroSectionProps) {
   const [displayScore, setDisplayScore] = useState(0)
-  const riskScore = 18
-  const riskLevel = "low"
+  const [isAnimating, setIsAnimating] = useState(false)
 
-  // Animate score on mount
+  const riskScore = assessment?.overallRiskScore || 0
+  const riskLevel = assessment?.riskLevel || 'low'
+  const lastAssessed = assessment ? 'Recently' : 'Not assessed'
+
+  // Animate score when assessment changes
   useEffect(() => {
-    let current = 0
-    const interval = setInterval(() => {
-      if (current < riskScore) {
-        current += 1
-        setDisplayScore(current)
-      } else {
-        clearInterval(interval)
-      }
-    }, 20)
-    return () => clearInterval(interval)
-  }, [])
+    if (assessment) {
+      setIsAnimating(true)
+      let current = 0
+      const target = riskScore
+      const increment = target / 50 // 50 steps
+      
+      const interval = setInterval(() => {
+        current += increment
+        if (current >= target) {
+          current = target
+          clearInterval(interval)
+          setIsAnimating(false)
+        }
+        setDisplayScore(Math.round(current))
+      }, 20)
+      
+      return () => clearInterval(interval)
+    }
+  }, [assessment, riskScore])
 
   const getRiskColor = () => {
-    if (riskScore <= 25) return "text-success"
-    if (riskScore <= 50) return "text-warning"
-    return "text-error"
+    if (riskLevel === 'low') return "text-green-600"
+    if (riskLevel === 'moderate') return "text-yellow-600"
+    return "text-red-600"
   }
 
   const getRiskBgColor = () => {
-    if (riskScore <= 25) return "from-success/20 to-success/5"
-    if (riskScore <= 50) return "from-warning/20 to-warning/5"
-    return "from-error/20 to-error/5"
+    if (riskLevel === 'low') return "from-green-100 to-green-50"
+    if (riskLevel === 'moderate') return "from-yellow-100 to-yellow-50"
+    return "from-red-100 to-red-50"
   }
 
-  const handleRunAssessment = async () => {
-    setIsRunning(true)
-    // Simulate assessment
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    setIsRunning(false)
+  const getRiskLevelText = () => {
+    if (riskLevel === 'low') return "Low Risk"
+    if (riskLevel === 'moderate') return "Moderate Risk"
+    return "High Risk"
+  }
+
+  const getRiskDescription = () => {
+    if (!assessment) {
+      return "Run your first AI-powered risk assessment to get personalized insights about your pregnancy health."
+    }
+    return assessment.explanation || "Your personalized AI-powered risk analysis based on your current health metrics and medical history."
   }
 
   const handleExportPDF = () => {
@@ -84,15 +105,19 @@ export function RiskHeroSection() {
                 </svg>
                 {/* Center text */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className={`text-5xl font-bold ${getRiskColor()}`}>{displayScore}</span>
+                  <span className={`text-5xl font-bold ${getRiskColor()}`}>
+                    {isAnimating ? displayScore : riskScore}
+                  </span>
                   <span className="text-sm text-muted-foreground">Risk Score</span>
                 </div>
               </div>
               <div className="text-center">
                 <p className={`text-lg font-semibold ${getRiskColor()}`}>
-                  {riskScore <= 25 ? "Low Risk" : riskScore <= 50 ? "Moderate Risk" : "High Risk"}
+                  {getRiskLevelText()}
                 </p>
-                <p className="text-sm text-muted-foreground mt-1">Last assessed: Today at 2:30 PM</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {assessment ? `Last assessed: ${lastAssessed}` : 'Not assessed yet'}
+                </p>
               </div>
             </div>
 
@@ -101,26 +126,19 @@ export function RiskHeroSection() {
               <div>
                 <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Pregnancy Risk Assessment</h1>
                 <p className="text-muted-foreground text-lg">
-                  Your personalized AI-powered risk analysis based on your current health metrics and medical history.
+                  {getRiskDescription()}
                 </p>
               </div>
 
-              <div className="bg-white/50 dark:bg-black/20 rounded-lg p-4 border border-primary/20">
-                <p className="text-sm text-foreground">
-                  <span className="font-semibold">What this means:</span> Your current health indicators suggest a low
-                  risk profile. Continue with regular prenatal care and monitoring.
-                </p>
-              </div>
+              {assessment && (
+                <div className="bg-white/50 dark:bg-black/20 rounded-lg p-4 border border-primary/20">
+                  <p className="text-sm text-foreground">
+                    <span className="font-semibold">What this means:</span> {assessment.explanation}
+                  </p>
+                </div>
+              )}
 
               <div className="flex flex-col sm:flex-row gap-3">
-                <Button
-                  onClick={handleRunAssessment}
-                  disabled={isRunning}
-                  className="gap-2 bg-primary hover:bg-primary/90 text-white"
-                >
-                  <RefreshCw className={`h-4 w-4 ${isRunning ? "animate-spin" : ""}`} />
-                  {isRunning ? "Running Assessment..." : "Run New Assessment"}
-                </Button>
                 <Button onClick={handleExportPDF} variant="outline" className="gap-2 bg-transparent">
                   <Download className="h-4 w-4" />
                   Share with Doctor

@@ -14,7 +14,11 @@ import {
   AlertTriangle,
   CheckCircle,
   ArrowRight,
-  Star
+  Star,
+  Zap,
+  TrendingUp,
+  Users,
+  Clock
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -179,6 +183,164 @@ export default function LandingPage() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-20 px-4">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-foreground mb-4">
+              How HealthGuard AI Works
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Our AI-powered platform uses advanced machine learning to provide personalized health insights
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <Users className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">1. Connect Your Data</h3>
+              <p className="text-muted-foreground">
+                Securely sync your health data, medications, appointments, and vital signs
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <Brain className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">2. AI Analysis</h3>
+              <p className="text-muted-foreground">
+                Our AI analyzes patterns, identifies risks, and generates personalized insights
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">3. Smart Recommendations</h3>
+              <p className="text-muted-foreground">
+                Receive actionable recommendations tailored to your health goals and conditions
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <Shield className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">4. Proactive Care</h3>
+              <p className="text-muted-foreground">
+                Stay ahead with early warnings, reminders, and continuous health monitoring
+              </p>
+            </div>
+          </div>
+
+          {/* AI Features Deep Dive */}
+          <div className="bg-gradient-to-r from-primary/5 to-secondary/5 rounded-2xl p-8">
+            <div className="text-center mb-12">
+              <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
+                <Zap className="w-4 h-4 mr-2" />
+                AI-Powered Features
+              </Badge>
+              <h3 className="text-3xl font-bold text-foreground mb-4">
+                Advanced AI Technology
+              </h3>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Experience the future of healthcare with our cutting-edge AI capabilities
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              <Card className="border-primary/20 hover:shadow-lg transition-all duration-300 hover-lift">
+                <CardHeader>
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center mb-4">
+                    <Brain className="h-6 w-6 text-white" />
+                  </div>
+                  <CardTitle className="text-xl">Risk Prediction</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-base mb-4">
+                    Our AI analyzes your health patterns to predict potential risks before they become serious issues.
+                  </CardDescription>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      Early warning system
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      Personalized risk scores
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      Preventive recommendations
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card className="border-primary/20 hover:shadow-lg transition-all duration-300 hover-lift">
+                <CardHeader>
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center mb-4">
+                    <Pill className="h-6 w-6 text-white" />
+                  </div>
+                  <CardTitle className="text-xl">Smart Medication</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-base mb-4">
+                    AI-powered medication management that learns your patterns and optimizes adherence.
+                  </CardDescription>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      Intelligent reminders
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      Adherence tracking
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      Interaction warnings
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              <Card className="border-primary/20 hover:shadow-lg transition-all duration-300 hover-lift">
+                <CardHeader>
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center mb-4">
+                    <Clock className="h-6 w-6 text-white" />
+                  </div>
+                  <CardTitle className="text-xl">Predictive Scheduling</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-base mb-4">
+                    Smart appointment scheduling that considers your health patterns and optimal timing.
+                  </CardDescription>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      Optimal timing suggestions
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      Automated reminders
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      Health-based scheduling
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </section>

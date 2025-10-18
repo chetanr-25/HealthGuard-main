@@ -2,7 +2,6 @@
 -- Run this SQL in your Supabase SQL editor
 
 -- Enable Row Level Security
-ALTER DATABASE postgres SET "app.jwt_secret" TO 'your-jwt-secret';
 
 -- Create users table
 CREATE TABLE IF NOT EXISTS users (
@@ -13,6 +12,9 @@ CREATE TABLE IF NOT EXISTS users (
     due_date DATE,
     blood_type TEXT,
     pregnancy_week INTEGER CHECK (pregnancy_week >= 0 AND pregnancy_week <= 42),
+    profile_complete BOOLEAN DEFAULT false,
+    onboarding_completed BOOLEAN DEFAULT false,
+    last_assessment_date TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -89,6 +91,21 @@ CREATE TABLE IF NOT EXISTS health_records (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Create smart_suggestions table
+CREATE TABLE IF NOT EXISTS smart_suggestions (
+    id TEXT PRIMARY KEY,
+    medication_id UUID NOT NULL REFERENCES medications(id) ON DELETE CASCADE,
+    type TEXT NOT NULL CHECK (type IN ('time_optimization', 'reminder_timing', 'dose_scheduling', 'encouragement')),
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    reasoning TEXT NOT NULL,
+    action TEXT NOT NULL,
+    priority TEXT NOT NULL CHECK (priority IN ('low', 'medium', 'high')),
+    estimated_improvement INTEGER NOT NULL, -- percentage
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'dismissed')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_vital_signs_user_id ON vital_signs(user_id);
 CREATE INDEX IF NOT EXISTS idx_vital_signs_timestamp ON vital_signs(timestamp);
@@ -158,6 +175,11 @@ CREATE POLICY "Users can view own health records" ON health_records FOR SELECT U
 CREATE POLICY "Users can insert own health records" ON health_records FOR INSERT WITH CHECK (user_id IN (SELECT id FROM users WHERE clerk_user_id = auth.jwt() ->> 'sub'));
 CREATE POLICY "Users can update own health records" ON health_records FOR UPDATE USING (user_id IN (SELECT id FROM users WHERE clerk_user_id = auth.jwt() ->> 'sub'));
 CREATE POLICY "Users can delete own health records" ON health_records FOR DELETE USING (user_id IN (SELECT id FROM users WHERE clerk_user_id = auth.jwt() ->> 'sub'));
+
+CREATE POLICY "Users can view own smart suggestions" ON smart_suggestions FOR SELECT USING (medication_id IN (SELECT id FROM medications WHERE user_id IN (SELECT id FROM users WHERE clerk_user_id = auth.jwt() ->> 'sub')));
+CREATE POLICY "Users can insert own smart suggestions" ON smart_suggestions FOR INSERT WITH CHECK (medication_id IN (SELECT id FROM medications WHERE user_id IN (SELECT id FROM users WHERE clerk_user_id = auth.jwt() ->> 'sub')));
+CREATE POLICY "Users can update own smart suggestions" ON smart_suggestions FOR UPDATE USING (medication_id IN (SELECT id FROM medications WHERE user_id IN (SELECT id FROM users WHERE clerk_user_id = auth.jwt() ->> 'sub')));
+CREATE POLICY "Users can delete own smart suggestions" ON smart_suggestions FOR DELETE USING (medication_id IN (SELECT id FROM medications WHERE user_id IN (SELECT id FROM users WHERE clerk_user_id = auth.jwt() ->> 'sub')));
 
 -- Enable real-time subscriptions
 ALTER PUBLICATION supabase_realtime ADD TABLE vital_signs;

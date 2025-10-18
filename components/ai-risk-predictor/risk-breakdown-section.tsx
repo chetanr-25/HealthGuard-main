@@ -8,21 +8,27 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Checkbox } from "@/components/ui/checkbox"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { ChevronDown } from "lucide-react"
+import { RiskAssessment } from "@/lib/aiAgent"
 
-export function RiskBreakdownSection() {
+interface RiskBreakdownSectionProps {
+  assessment?: RiskAssessment | null
+}
+
+export function RiskBreakdownSection({ assessment }: RiskBreakdownSectionProps) {
   const [completedRecommendations, setCompletedRecommendations] = useState<number[]>([])
 
   const toggleRecommendation = (index: number) => {
     setCompletedRecommendations((prev) => (prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]))
   }
 
-  const complications = [
+  // Default data when no assessment is available
+  const defaultComplications = [
     { name: "Preeclampsia", risk: 8, tooltip: "High blood pressure during pregnancy" },
     { name: "Gestational Diabetes", risk: 12, tooltip: "High blood sugar during pregnancy" },
     { name: "Preterm Labor", risk: 5, tooltip: "Labor before 37 weeks of pregnancy" },
   ]
 
-  const factors = [
+  const defaultFactors = [
     { name: "Age", impact: "low", description: "28 years old - optimal pregnancy age" },
     { name: "BMI", impact: "low", description: "22.5 - healthy weight range" },
     { name: "Blood Pressure Trends", impact: "low", description: "Stable and within normal range" },
@@ -30,7 +36,7 @@ export function RiskBreakdownSection() {
     { name: "Lifestyle Factors", impact: "low", description: "Regular exercise and balanced diet" },
   ]
 
-  const recommendations = [
+  const defaultRecommendations = [
     {
       priority: "routine",
       action: "Schedule routine prenatal checkup",
@@ -47,6 +53,28 @@ export function RiskBreakdownSection() {
       details: "Essential for fetal development and reducing birth defects.",
     },
   ]
+
+  // Use AI assessment data if available, otherwise use defaults
+  const complications = assessment ? 
+    assessment.contributingFactors.slice(0, 3).map((factor, idx) => ({
+      name: factor,
+      risk: Math.min(20, (assessment.overallRiskScore / 5) + (idx * 3)), // Estimate based on overall score
+      tooltip: `AI-identified risk factor: ${factor}`
+    })) : defaultComplications
+
+  const factors = assessment ?
+    assessment.contributingFactors.map((factor, idx) => ({
+      name: factor,
+      impact: idx < 2 ? "low" : idx < 4 ? "medium" : "high",
+      description: `AI-identified contributing factor: ${factor}`
+    })) : defaultFactors
+
+  const recommendations = assessment ?
+    assessment.recommendations.map((rec, idx) => ({
+      priority: idx === 0 ? "urgent" : idx < 3 ? "important" : "routine",
+      action: rec,
+      details: `AI-generated recommendation based on your health data: ${rec}`
+    })) : defaultRecommendations
 
   const getImpactColor = (impact: string) => {
     switch (impact) {
