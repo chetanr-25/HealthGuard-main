@@ -1,25 +1,53 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { TrendingDown, Activity, Droplet, Weight, Heart } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { LineChart, Line, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import { HealthStatsModal } from "./health-stats-modal"
-
-const heartRateData = [
-  { time: "Mon", value: 68 },
-  { time: "Tue", value: 72 },
-  { time: "Wed", value: 70 },
-  { time: "Thu", value: 75 },
-  { time: "Fri", value: 72 },
-  { time: "Sat", value: 70 },
-  { time: "Sun", value: 72 },
-]
+import { useVitalSigns } from "@/lib/hooks/useVitalSigns"
 
 export function HealthStatsGrid() {
   const [selectedStat, setSelectedStat] = useState<"heart-rate" | "blood-pressure" | "weight" | "baby-activity" | null>(
     null,
   )
+  
+  const { vitalSigns, loading, getLatestVitalSign, getVitalSignsByType } = useVitalSigns()
+
+  // Get latest vital signs
+  const latestHeartRate = getLatestVitalSign('heart_rate')
+  const latestBloodPressure = getLatestVitalSign('blood_pressure')
+  const latestWeight = getLatestVitalSign('weight')
+  const latestBabyActivity = getLatestVitalSign('oxygen_saturation') // Using oxygen saturation as proxy for baby activity
+
+  // Generate chart data for heart rate (last 7 days)
+  const heartRateData = useMemo(() => {
+    const heartRateSigns = getVitalSignsByType('heart_rate')
+    const last7Days = heartRateSigns.slice(0, 7).reverse()
+    
+    return last7Days.map((sign, index) => ({
+      time: new Date(sign.timestamp).toLocaleDateString('en-US', { weekday: 'short' }),
+      value: sign.value
+    }))
+  }, [getVitalSignsByType])
+
+  // Get status color and text based on vital sign status
+  const getStatusInfo = (status: string) => {
+    switch (status) {
+      case 'normal':
+        return { color: 'text-success', text: 'Normal' }
+      case 'elevated':
+        return { color: 'text-warning', text: 'Elevated' }
+      case 'high':
+        return { color: 'text-error', text: 'High' }
+      case 'low':
+        return { color: 'text-warning', text: 'Low' }
+      case 'critical':
+        return { color: 'text-error', text: 'Critical' }
+      default:
+        return { color: 'text-muted-foreground', text: 'Unknown' }
+    }
+  }
 
   const StatCard = ({ title, value, unit, icon: Icon, status, chart, onClick }: any) => (
     <Card
@@ -64,11 +92,11 @@ export function HealthStatsGrid() {
         {/* Heart Rate Card */}
         <StatCard
           title="Heart Rate"
-          value="72"
+          value={loading ? "..." : latestHeartRate?.value?.toString() || "N/A"}
           unit="bpm"
           icon={Heart}
-          status="Normal"
-          chart={heartRateData}
+          status={loading ? "Loading..." : getStatusInfo(latestHeartRate?.status || 'normal').text}
+          chart={heartRateData.length > 0 ? heartRateData : undefined}
           onClick={() => setSelectedStat("heart-rate")}
         />
 
@@ -86,12 +114,16 @@ export function HealthStatsGrid() {
           <CardContent>
             <div className="space-y-4">
               <div>
-                <div className="text-2xl font-bold text-foreground">120/80</div>
+                <div className="text-2xl font-bold text-foreground">
+                  {loading ? "..." : latestBloodPressure?.value?.toString() || "N/A"}
+                </div>
                 <p className="text-xs text-muted-foreground">mmHg</p>
               </div>
               <div className="flex items-center gap-2">
                 <TrendingDown className="h-4 w-4 text-success" />
-                <span className="text-xs text-success">Stable</span>
+                <span className={`text-xs ${getStatusInfo(latestBloodPressure?.status || 'normal').color}`}>
+                  {loading ? "Loading..." : getStatusInfo(latestBloodPressure?.status || 'normal').text}
+                </span>
               </div>
               <p className="text-xs text-muted-foreground">Click to view details</p>
             </div>
@@ -112,12 +144,16 @@ export function HealthStatsGrid() {
           <CardContent>
             <div className="space-y-4">
               <div>
-                <div className="text-2xl font-bold text-foreground">68.5</div>
+                <div className="text-2xl font-bold text-foreground">
+                  {loading ? "..." : latestWeight?.value?.toString() || "N/A"}
+                </div>
                 <p className="text-xs text-muted-foreground">kg</p>
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">+2.1 kg this week</span>
+                  <span className={`${getStatusInfo(latestWeight?.status || 'normal').color}`}>
+                    {loading ? "Loading..." : getStatusInfo(latestWeight?.status || 'normal').text}
+                  </span>
                 </div>
                 <div className="w-full bg-muted rounded-full h-2">
                   <div className="bg-primary h-2 rounded-full" style={{ width: "65%" }} />
@@ -142,12 +178,16 @@ export function HealthStatsGrid() {
           <CardContent>
             <div className="space-y-4">
               <div>
-                <div className="text-2xl font-bold text-foreground">12</div>
-                <p className="text-xs text-muted-foreground">kicks today</p>
+                <div className="text-2xl font-bold text-foreground">
+                  {loading ? "..." : latestBabyActivity?.value?.toString() || "N/A"}
+                </div>
+                <p className="text-xs text-muted-foreground">oxygen level</p>
               </div>
               <div className="space-y-2 text-xs">
-                <p className="text-muted-foreground">Last kick: 5 min ago</p>
-                <p className="text-muted-foreground">Target: 10+ kicks</p>
+                <p className={`${getStatusInfo(latestBabyActivity?.status || 'normal').color}`}>
+                  {loading ? "Loading..." : getStatusInfo(latestBabyActivity?.status || 'normal').text}
+                </p>
+                <p className="text-muted-foreground">Target: 95%+ oxygen</p>
               </div>
               <p className="text-xs text-muted-foreground">Click to view details</p>
             </div>

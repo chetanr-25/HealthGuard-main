@@ -1,9 +1,9 @@
 "use client"
 
-import { Menu, Search, Bell, User } from "lucide-react"
+import { Menu, Search, Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { UserButton } from '@clerk/nextjs'
 
 interface TopNavigationProps {
   onMenuClick: () => void
@@ -41,21 +41,18 @@ export function TopNavigation({ onMenuClick }: TopNavigationProps) {
             <span className="absolute top-1 right-1 w-2 h-2 bg-error rounded-full" />
           </Button>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="User menu">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                  <User className="h-4 w-4 text-white" />
-                </div>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Help</DropdownMenuItem>
-              <DropdownMenuItem>Sign Out</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <UserButton 
+            appearance={{
+              elements: {
+                avatarBox: "w-8 h-8",
+                userButtonPopoverCard: "shadow-lg border-border",
+                userButtonPopoverActionButton: "hover:bg-muted",
+                userButtonPopoverActionButtonText: "text-foreground",
+                userButtonPopoverFooter: "hidden"
+              }
+            }}
+            afterSignOutUrl="/landing"
+          />
         </div>
       </div>
     </header>

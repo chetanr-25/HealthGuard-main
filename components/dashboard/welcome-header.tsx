@@ -2,19 +2,26 @@
 
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar"
 import "react-circular-progressbar/dist/styles.css"
+import { useUser } from "@/lib/hooks/useUser"
 
 export function WelcomeHeader() {
-  const pregnancyWeek = 24
+  const { user, loading, getCurrentPregnancyWeek, getPregnancyProgress, getTrimester, getDaysUntilDue } = useUser()
+  
+  const pregnancyWeek = getCurrentPregnancyWeek() || 0
   const totalWeeks = 40
-  const daysUntilDue = 112
-  const progressPercent = (pregnancyWeek / totalWeeks) * 100
+  const daysUntilDue = getDaysUntilDue() || 0
+  const progressPercent = getPregnancyProgress()
+  const trimester = getTrimester()
+  const trimesterText = trimester ? `${trimester}${trimester === 1 ? 'st' : trimester === 2 ? 'nd' : 'rd'} Trimester` : 'Not Set'
 
   return (
     <div className="mb-8">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* Greeting */}
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2 text-balance">Good Morning, Sarah</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2 text-balance">
+            {loading ? 'Loading...' : `Good Morning, ${user?.name || 'User'}`}
+          </h1>
           <p className="text-muted-foreground">Welcome back to your maternal health dashboard</p>
         </div>
 
@@ -23,8 +30,10 @@ export function WelcomeHeader() {
           {/* Week Badge */}
           <div className="bg-gradient-to-br from-primary to-primary-dark text-white rounded-lg p-4 min-w-fit hover:shadow-lg transition-shadow duration-300">
             <div className="text-sm font-medium opacity-90">Pregnancy Progress</div>
-            <div className="text-2xl font-bold">Week {pregnancyWeek}</div>
-            <div className="text-xs opacity-75">2nd Trimester</div>
+            <div className="text-2xl font-bold">
+              {loading ? '...' : `Week ${pregnancyWeek}`}
+            </div>
+            <div className="text-xs opacity-75">{trimesterText}</div>
           </div>
 
           {/* Due Date Countdown */}
