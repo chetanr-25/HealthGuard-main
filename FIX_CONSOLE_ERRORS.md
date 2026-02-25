@@ -12,7 +12,7 @@
 - **Required**: Run database migration
 
 ### 3. **Clerk Authentication Issues**
-- **Cause**: Infinite redirect loop
+- **Cause**: Infinite redirect loop 
 - **Status**: ⚠️ **NEEDS ATTENTION**
 
 ## 🚀 **Immediate Fixes Required**
