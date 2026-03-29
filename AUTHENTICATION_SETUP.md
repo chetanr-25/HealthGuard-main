@@ -34,8 +34,7 @@ This document outlines the Clerk authentication integration in the HealthGuard A
 ## Environment Variables
 
 ```env
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_ZmFtb3VzLWdvc2hhd2stMjcuY2xlcmsuYWNjb3VudHMuZGV2JA
-CLERK_SECRET_KEY=sk_test_AFokD2TBLUutTT8RJhShDISZJQmBwPQEu4NakJ4tqz
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 ```
 
 ## File Structure

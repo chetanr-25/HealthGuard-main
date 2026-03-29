@@ -9,7 +9,7 @@ This document outlines the complete Supabase backend integration for the HealthG
 2. Navigate to the SQL Editor
 3. Copy and paste the contents of `database/schema.sql`
 4. Run the SQL script to create all tables, indexes, and policies
-
+ 
 ### 2. Environment Variables
 The following environment variables are already configured in `.env.local`:
 ```env
